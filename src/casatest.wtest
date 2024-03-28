@@ -1,0 +1,70 @@
+import casa.*
+
+describe "Casa de Pepe y Julián" {
+
+	test "Romper algo de 1000 pesos. Víveres suficientes, reparaciones por hacer, casa desordenada." {
+		casaDePepeYJulian.nuevaReparacion(1000)
+		assert.that(casaDePepeYJulian.hayViveresSuficientes())
+		assert.that(casaDePepeYJulian.hayReparacionesPorHacer())
+		assert.notThat(casaDePepeYJulian.casaEnOrden())
+	}
+
+	test "Deposito en cuenta con gastos vacía" {
+		cuentaConGastos.depositar(1000)
+		assert.equals(980, cuentaConGastos.saldo())
+	}
+
+	test "Cuenta combinada. Primaria con gastos, secundaria corriente. Prueba de extracción y depósito." {
+		cuentaConGastos.costoOperativo(50)
+		cuentaCorriente.saldo(500)
+		cuentaCombinada.depositar(100)
+		assert.equals(50, cuentaCombinada.cuentaPrimaria().saldo())
+		cuentaCombinada.extraer(200)
+		assert.equals(300, cuentaCombinada.cuentaSecundaria().saldo())
+		assert.equals(350, cuentaCombinada.saldo())
+	}
+
+	test "Simulación de 400 de gasto. Cuenta combinada." {
+		cuentaConGastos.costoOperativo(50)
+		cuentaCorriente.saldo(1000)
+		casaDePepeYJulian.nuevaReparacion(400)
+		casaDePepeYJulian.reparar()
+		assert.equals(600, casaDePepeYJulian.cuenta().saldo())
+	}
+
+	test "Simulación de 150 de gasto. Cuenta combinada." {
+		cuentaConGastos.costoOperativo(50)
+		cuentaConGastos.saldo(200)
+		cuentaCorriente.saldo(1000)
+		casaDePepeYJulian.nuevaReparacion(150)
+		casaDePepeYJulian.reparar()
+		assert.equals(1050, casaDePepeYJulian.cuenta().saldo())
+	}
+
+	test "Casa: Viveres 50%, 100 en reparaciones, cuenta corriente con 1000 y ahorro full" {
+		// CONFIGURACIONES INICIALES
+		casaDePepeYJulian.cuenta(cuentaCorriente)
+		/* NOTA: Acá me dice que espera cuentaCombinada,
+		 * no cuentaCorriente. Sin embargo, para el atributo
+		 * cuenta utilicé property y el setter funciona correctamente
+		 * en el REPL. ¿Qué puede dar este error?
+		 * Pese a esto, el test funciona correctamente.
+		 */
+		casaDePepeYJulian.viveres(50)
+		casaDePepeYJulian.reparaciones(100)
+		casaDePepeYJulian.cuenta().saldo(1000)
+		casaDePepeYJulian.estrategiaDeAhorro(full)
+		// PRUEBAS
+		casaDePepeYJulian.mantener()
+		assert.equals(800, casaDePepeYJulian.cuenta().saldo())
+		assert.that(casaDePepeYJulian.puedePagarReparaciones())
+		assert.equals(90, casaDePepeYJulian.viveres())
+		assert.equals(100, casaDePepeYJulian.reparaciones())
+	}
+
+/* Con respecto a los test...
+ * ¿Están bien implementados?
+ * ¿Qué se podría mejorar en cuanto a estructura?
+ */
+}
+
